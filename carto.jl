@@ -1,4 +1,4 @@
-﻿include("ImageCreatorlxlylz.jl")
+include("ImageCreatorlxlylz.jl")
 include("dipole.jl")
 
 const c = 299792458.
@@ -6,23 +6,23 @@ const mu0 = 4*pi*1e-7
 const eps0 = 1/(mu0*c^2)
 
 #cavity
-L=0.7
-l=0.7
-h=0.7
+L=0.5
+l=0.45
+h=0.45
 lossesx= 0.5
 lossesy= 0.998
 lossesz= 0.998
-order=10
+order=20
 
-const freq=.5e9
+const freq=1e9
 
 ##dipole
 #dipole position
-X=1.2
-Y=1
-Z=1.3
-tilt=pi/2-acos(sqrt(2/3));
-azimut=pi/4
+X=0.01
+Y=l/2
+Z=h/2
+tilt=0#pi/2-acos(sqrt(2/3));
+azimut=0#pi/4
 phase=0
 #dipole moment
 #total time averaged radiated power P= 1 W dipole moment => |p|=sqrt(12πcP/µOω⁴)
@@ -84,7 +84,7 @@ using PyPlot
 figure(1)
 title("\$E_z\$ (V/m)")
 pcolor(x,y,Ez',cmap="jet")
-clim(0,20)
+#clim(0,20)
 colorbar()
 axis("scaled")
 xlim(0,L)
