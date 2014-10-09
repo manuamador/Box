@@ -13,8 +13,8 @@ lossesx= 0.8
 lossesy= 0.998
 lossesz= 0.998
 order=30
-nf=400
-const freq=linspace(5e6,2e9,nf)
+nf=1999
+const freq=linspace(1e6,2e9,nf)
 
 ##dipole
 #dipole position
@@ -39,36 +39,63 @@ POS=IC(L,l,h,X,Y,Z,tilt,azimut,phase,amplitude,order,lossesx,lossesy,lossesz)
 numberofimages=length(POS[:,1])#1+2*order+(2*order*(order+1)*(2*order+1))/3
 #POS=POS[1:numberofimages,:]
 
+dx=0.05
+dy=0.05
+dz=0.05
 
 #observation points
-x=L/2
-y=l/2
-z=h/2
+x1=[dx, L/2 , L-dx, dx, L/2 , L-dx, dx, L/2 , L-dx]
+y1=dy*ones(9)
+z1=[dz, dz, dz, h/2 , h/2, h/2, h-dz, h-dz, h-dz]
 
-println("Computing the radiation...")
-Z=zeros(nf)
-E=zeros(Complex128,nf,3)
-B=zeros(Complex128,nf,3)
-for i=1:nf
-  perc=round(i/nf*1000)/10
-  println("$perc %")
-  r=[x,y,z]
-  Et=zeros(Complex128,3)
-  Bt=zeros(Complex128,3)
-  for m=1:numberofimages
-    p=vec(POS[m,1:3])
-    R=vec(POS[m,4:6])
-    ord=POS[m,7]
-    Ed,Bd=Hertz_dipole (r, p, R, phase, freq[i])
-    Et+=Ed
-    Bt+=Bd
-  end
-  Z[i]=sqrt(sum(abs(E).^2))/sqrt(sum(abs(B).^2))*mu0 #real(E).^2#0.5*numpy.cross(E.T,conjugate(B.T))
-  E[i,:]=Et
-  B[i,:]=Bt
-end
+x=vcat(x1,x1,x1)
+y=vcat(y1,ones(9)*l/2,l-y1)
+z=vcat(z1,z1,z1)
 
+n_m=length(x)
 using PyPlot
 
-semilogy(freq,abs(E))
-grid()
+println("Computing the radiation...")
+E=zeros(Complex128,n_m,nf,3)
+B=zeros(Complex128,n_m,nf,3)
+for j=1:n_m
+  println("$j/$n_m")
+  for i=1:nf
+    perc=round(i/nf*10000)/100
+    println("$perc %")
+    r=[x[j],y[j],z[j]]
+    Et=zeros(Complex128,3)
+    Bt=zeros(Complex128,3)
+    for m=1:numberofimages
+      p=vec(POS[m,1:3])
+      R=vec(POS[m,4:6])
+      ord=POS[m,7]
+      Ed,Bd=Hertz_dipole (r, p, R, phase, freq[i])
+      Et+=Ed
+      Bt+=Bd
+    end
+    E[j,i,:]=Et
+    B[j,i,:]=Bt
+  end
+  figure()
+  title("Position $j")
+  semilogy(freq,abs(E[j,:,1]'),label="E_x")
+  semilogy(freq,abs(E[j,:,2]'),label="E_y")
+  semilogy(freq,abs(E[j,:,3]'),label="E_z")
+  grid()
+  legend()
+  savefig("Epos$j.pdf")
+  close()
+  figure()
+  title("Position $j")
+  semilogy(freq,abs(B[j,:,1]')/mu0,label="H_x")
+  semilogy(freq,abs(B[j,:,2]')/mu0,label="H_y")
+  semilogy(freq,abs(B[j,:,3]')/mu0,label="H_z")
+  grid()
+  legend()
+  savefig("Hpos$j.pdf")
+  close()
+end
+
+using HDF5,JLD
+save("Emb.jld","E",abs(E))
