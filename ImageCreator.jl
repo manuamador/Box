@@ -15,21 +15,9 @@ function IC(l,p,h,X,Y,Z,tilt,azimut,phase,amplitude,order)
       for k=0:order
         n = int(i+j+k);
         ip = (Rx^i * Ry^j * Rz^k) * i0;
-        if mod(i,2)==0
-          x = i*l+X;
-        else
-          x = (i+1)*l-X
-        end
-        if mod(j,2)==0
-          y = j*p+Y;
-        else
-          y = (j+1)*p-Y
-        end
-        if mod(k,2)==0
-          z = k*h+Z;
-        else
-          z = (k+1)*L-Z
-        end
+        x = (i+mod(i,2))*l+(-1)^i*X;
+        y = (j+mod(j,2))*p+(-1)^j*Y;
+        z = (k+mod(k,2))*h+(-1)^k*Z;
         POS[count,:]=[ip' x  y  z n ]
         POS[count+1,:]=[(Rz*ip)' x  y  -z n+1 ]
         POS[count+2,:]=[(Ry*ip)' x  -y  z n+1 ]
