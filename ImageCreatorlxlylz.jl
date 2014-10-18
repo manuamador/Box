@@ -27,9 +27,21 @@ function IC(l,p,h,X,Y,Z,tilt,azimut,phase,amplitude,order,lx,ly,lz)
 	      losses5=lx^(i+1)*ly^j*lz^(k+1)
         losses6=lx^(i+1)*ly^(j+1)*lz^k
         losses7=lx^(i+1)*ly^(j+1)*lz^(k+1)
-        x = i*l+(-1)^i*X;
-        y =	j*p+(-1)^j*Y;
-        z = k*h+(-1)^k*Z;
+        if mod(i,2)==0
+          x = i*l+X;
+        else
+          x = (i+1)*l-X
+        end
+        if mod(j,2)==0
+          y = j*p+Y;
+        else
+          y = (j+1)*p-Y
+        end
+        if mod(k,2)==0
+          z = k*h+Z;
+        else
+          z = (k+1)*L-Z
+        end
         POS[count,:]=[ip'*losses x  y  z n ]
         POS[count+1,:]=[(-Rz*ip)'*losses1 x  y  -z n+1 ]
         POS[count+2,:]=[(-Ry*ip)'*losses2 x  -y  z n+1 ]
