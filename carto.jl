@@ -15,14 +15,14 @@ lossesy= 0.95
 lossesz= 0.95
 order=20
 
-const freq=[50e6,225e6,1e9,2e9]
+const freq=[448e6,1e9,1.5e9,2e9]
 #const freq=[1e9]
 nf=length(freq)
 
 
 ##dipole
 #dipole position
-X=L/3
+X=0.05
 Y=l/3
 Z=h/2
 tilt=0#pi/2-acos(sqrt(2/3));
@@ -47,13 +47,13 @@ numberofimages=length(POS[:,1])#1+2*order+(2*order*(order+1)*(2*order+1))/3
 
 
 #observation points
-dx=0.01
-dy=0.01
-dz=0.01
-const  xmin=0-2*dx
-const  xmax=L+2*dx
-const  ymin=0-2*dy
-const  ymax=l+2*dy
+dx=0.005
+dy=0.005
+dz=0.005
+const  xmin=0
+const  xmax=L+dx
+const  ymin=0
+const  ymax=l+dy
 const  x=[xmin:dx:xmax]
 const  y=[ymin:dy:ymax]
 const  z=h/3
@@ -63,7 +63,7 @@ const ny=length(y)
 
 using PyPlot
 println("Computing the radiation...")
-Et=zeros(4,nx,ny,3)
+Et=zeros(nf,nx,ny,3)
 for k=1:nf
   println("$k/$nf")
   for i=1:nx
@@ -76,15 +76,15 @@ for k=1:nf
         p=vec(POS[m,1:3])
         R=vec(POS[m,4:6])
         ord=POS[m,7]
-        Ed,Bd=Hertz_dipole_ff (r, p, R, phase, freq[k])
+        Ed,Bd=Hertz_dipole (r, p, R, phase, freq[k])
         E+=Ed
       end
       Et[k,i,j,:]=abs(E)
     end
   end
-  freqtxt=round(freq[k]/1e7)/100
+  freqtxt=round(freq[k]/1e4)/100
   figure(1)
-  title("\$E_z\$ (V/m), $freqtxt GHz")
+  title("\$E_z\$ (V/m), $freqtxt MHz")
   pcolor(x,y,squeeze(Et[k,:,:,3],1)',cmap="jet")
   #clim(0,20)
   colorbar()
@@ -99,4 +99,4 @@ end
 
 
 using HDF5,JLD
-save("E_carto1.jld","Et",Et)
+save("E_carto.jld","Et",Et)

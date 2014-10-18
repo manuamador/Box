@@ -22,8 +22,11 @@ ylabel("\$ p \$")
 
 savefig("fig1.pdf",bbox_inches="tight")
 
-
-E = npzread("E_2.npy")
+using NPZ
+using PyPlot
+nf=2000
+const freq=linspace(1e6,2e9,nf)
+E = npzread("E_1.npy")
 figure(figsize=(10,5))
 semilogy(freq/1e6,E[:,1]./(freq.^2)*2e9^2,label="\$ E_x\$")
 semilogy(freq/1e6,E[:,2]./(freq.^2)*2e9^2,label="\$ E_y\$")
