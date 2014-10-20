@@ -104,4 +104,4 @@ end
 
 
 npzwrite("Em_r30.npy",abs(E))
-npzwrite("data30r.npz", ["E" => abs(E), "freq" => freq, "x" => x, "y" => x, "z" => x,])
+npzwrite("data30r.npz", ["E" => abs(E), "freq" => freq, "x" => x, "y" => y, "z" => z])
