@@ -10,12 +10,12 @@ const eps0 = 1/(mu0*c^2)
 L=0.5
 l=0.45
 h=0.45
-lossesx= 0.95
-lossesy= 0.95
-lossesz= 0.95
+lossesx= 0.8
+lossesy= 0.99
+lossesz= 0.99
 order=20
 
-const freq=[448e6,1e9,1.5e9,2e9]
+const freq=[100e6,200e6,300e6,400e6,500e6,600e6,700e6,800e6,900e6,1e9,2e9,3e9,4e9,5e9]
 #const freq=[1e9]
 nf=length(freq)
 
@@ -38,6 +38,14 @@ amplitude=sqrt(12*pi*c*Pow/(mu0*(2*pi*freq[end])^4))
 #Images
 POS=IC(L,l,h,X,Y,Z,tilt,azimut,phase,amplitude,order,lossesx,lossesy,lossesz)
 #POS=IC(L,l,h,X,Y,Z,tilt,azimut,phase,amplitude,order)
+Lm=(order+2)*L
+lm=(order+2)*l
+hm=(order+2)*h
+
+dmax=maximum([Lm,lm,hm])
+dist=sqrt(POS[:,4].^2+POS[:,5].^2+POS[:,6].^2)
+U=find(dist.<dmax)
+POS=POS[U,:]
 
 #using HDF5,JLD
 #@load "POS100.jld" POS
@@ -93,10 +101,10 @@ for k=1:nf
   ylim(ymin,ymax)
   xlabel("\$x\$/m")
   ylabel("\$y\$/m")
-  savefig("E_$k.png",bbox="tight")
+  savefig("E_$k.png",bbox_inches="tight")
   clf()
 end
 
+using NPZ
+npzwrite("Ecarto.npz", ["Et" => Et, "freq" => freq, "x" => x, "y" => y, "z" => z,])
 
-using HDF5,JLD
-save("E_carto.jld","Et",Et)
